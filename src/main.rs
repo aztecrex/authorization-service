@@ -1,7 +1,7 @@
+extern crate authorization_service;
 
-mod protocol;
 
-use crate::protocol::Query;
+use authorization_service::protocol::Query;
 
 fn main() {
     let q = Query {};

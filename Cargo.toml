@@ -1,5 +1,5 @@
 [package]
-name = "authorization-service"
+name = "authorization_service"
 version = "0.1.0"
 authors = ["Greg Wiley <gwiley@cj.com>"]
 edition = "2018"
