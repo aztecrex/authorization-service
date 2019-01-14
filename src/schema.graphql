@@ -1,0 +1,23 @@
+schema {
+    query: Query
+}
+
+type Query {
+    "#[ownership(owned)]"
+    search(query: String!): [SearchResult!]!
+}
+
+interface SearchResult {
+    id: ID!
+    text: String!
+}
+
+type Article implements SearchResult {
+    id: ID!
+    text: String!
+}
+
+type Tweet implements SearchResult {
+    id: ID!
+    text: String!
+}

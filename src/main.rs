@@ -1,10 +1,10 @@
-extern crate authorization_service;
+// extern crate authorization_service;
 
 
-use authorization_service::protocol::Query;
+// use authorization_service::protocol::Query;
 
 fn main() {
-    let q = Query {};
-    println!("{:?}",q);
+    // let q = Query {};
+    // println!("{:?}",q);
     println!("Hello, world!");
 }
