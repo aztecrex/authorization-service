@@ -1,94 +1,92 @@
-// #[macro_use] extern crate juniper;
-#[macro_use] extern crate juniper;
-#[macro_use] extern crate juniper_from_schema;
-
+extern crate juniper;
 use juniper::*;
 use juniper_from_schema::graphql_schema_from_file;
 
-graphql_schema_from_file!("src/schema.graphql");
+graphql_schema_from_file! ("src/schema.graphql");
 
-// pub struct Query;
+pub struct Context;
+impl juniper::Context for Context {}
 
-// impl QueryFields for Query {
-//     fn field_search(
-//         &self,
-//         executor: &Executor<'_, Context>,
-//         trail: &QueryTrail<'_, SearchResult, Walked>,
-//         query: String,
-//     ) -> FieldResult<Vec<SearchResult>> {
-//         let article: Article = Article { id: Id::new("1"), text: "Business".to_string() };
-//         let tweet: Tweet = Tweet { id: Id::new("2"), text: "1 weird tip".to_string() };
+pub struct Query;
+impl QueryFields for Query {
+    fn field_can_perform(
+        &self,
+        _executor: &Executor<'_, Context>,
+        _trail: &QueryTrail<'_, QueryResult, Walked>,
+        _subject: Vec<String>,
+        _resource_actions: Vec<ResourceActionInput>,
+    ) -> FieldResult<&QueryResult> {
+        unimplemented!()
+    }
+}
 
-//         let posts = vec![
-//             SearchResult::from(article),
-//             SearchResult::from(tweet),
-//         ];
+pub struct QueryResult;
+impl QueryResultFields for QueryResult {
+    fn field_all(
+        &self,
+        _executor: &Executor<'_,Context>
+    ) -> FieldResult<&bool> {
+        unimplemented!()
+    }
+    fn field_any(
+        &self,
+        _executor: &Executor<'_,Context>
+    ) -> FieldResult<&bool> {
+        unimplemented!()
+    }
+    fn field_allow(
+        &self,
+        _executor: &Executor<'_,Context>,
+        _trail: &QueryTrail<'_, ResourceAction, Walked>
+    ) -> FieldResult<&Vec<ResourceAction>> {
+        unimplemented!()
+    }
+    fn field_deny(
+        &self,
+        _executor: &Executor<'_,Context>,
+        _trail: &QueryTrail<'_, ResourceAction, Walked>
+    ) -> FieldResult<&Vec<ResourceAction>> {
+        unimplemented!()
+    }
 
-//         Ok(posts)
-//     }
-// }
+}
 
+pub struct ResourceAction;
+impl ResourceActionFields for ResourceAction {
+    fn field_namespace(
+        &self,
+        _executor: &Executor<'_,Context>
+    ) -> FieldResult<&String> {
+        unimplemented!()
+    }
+    fn field_action(
+        &self,
+        _executor: &Executor<'_,Context>
+    ) -> FieldResult<&String> {
+        unimplemented!()
+    }
+        fn field_resource(
+        &self,
+        _executor: &Executor<'_,Context>
+    ) -> FieldResult<&Vec<String>> {
+        unimplemented!()
+    }
+}
 
+pub type Schema2 = juniper::RootNode<'static, Query, juniper::EmptyMutation<Context>>;
 
-// impl QueryFields for Query {
-//     fn field_hello_world(
-//         &self,
-//         executor: &Executor<'_, Context>,
-//         name: String,
-//     ) -> FieldResult<String> {
-//         Ok(format!("Hello, {}!", name))
-//     }
-// }
+pub fn wot() {
+    let ctx = Context;
+    // get the schema
+    let (res, _errors) = juniper::execute(
+        "{__schema {types {name description fields {name description}}}}",
+        // "{ human (id: \"3\") {id name} }",
+        None,
+        &Schema2::new(Query, EmptyMutation::new()),
+        &Variables::new(),
+        &ctx,
+    ).unwrap();
+    let s = serde_json::to_string(&res).unwrap();
+    println!("schema: {}",s);
 
-// pub mod protocol;
-
-// #[derive(GraphQLObject)]
-// #[graphql(description="A resource and action pair")]
-// pub struct ResourceAction {
-//     #[graphql(description="Defining authority identifier")]
-//     authority: String,
-//     #[graphql(description="Resource path")]
-//     resource: Vec<String>,
-//     #[graphql(description="Action name")]
-//     action: String,
-// }
-
-// pub trait Service {
-//     fn foo(&self) -> u32;
-// }
-
-// type Context = Box<Service>;
-
-// impl juniper::Context for Context {}
-
-// struct Query {}
-
-// graphql_object!(Query: Context |&self| {
-//     field permit(&exec, subjects: Vec<String>, targets: Vec<ResourceAction>) -> FieldResult<bool> {
-//         false
-//     }
-// });
-
-// // #[derive(GraphQLObject)]
-// // #[graphql(description="An authorization query element")]
-// // pub struct Subject {
-// //     id: String,
-// // }
-
-// //     field apiVersion() -> &str {
-// //         "1.0"
-// //     }
-
-// //     // Arguments to resolvers can either be simple types or input objects.
-// //     // The executor is a special (optional) argument that allows accessing the context.
-// //     field human(&executor, id: String) -> FieldResult<Human> {
-// //         // Get the context from the executor.
-// //         let context = executor.context();
-// //         // Get a db connection.
-// //         let connection = context.pool.get_connection()?;
-// //         // Execute a db query.
-// //         // Note the use of `?` to propagate errors.
-// //         let human = connection.find_human(&id)?;
-// //         // Return the result.
-// //         Ok(human)
-// //     }
+}

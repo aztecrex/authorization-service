@@ -2,22 +2,30 @@ schema {
     query: Query
 }
 
-type Query {
-    "#[ownership(owned)]"
-    search(query: String!): [SearchResult!]!
+"Hey a root query"  type Query {
+    "Determine if a subject is permitted to perform actions"
+        canPerform(
+            "Subject principals for which access is controlled" subject: [String!]!
+            "Requested resource actions" resourceActions: [ResourceActionInput!]!
+            )
+            : QueryResult!
 }
 
-interface SearchResult {
-    id: ID!
-    text: String!
+type QueryResult {
+    all: Boolean!
+    any: Boolean!
+    allow: [ResourceAction!]!
+    deny: [ResourceAction!]!
 }
 
-type Article implements SearchResult {
-    id: ID!
-    text: String!
+type ResourceAction {
+    namespace: String!
+    action: String!
+    resource: [String!]!
 }
 
-type Tweet implements SearchResult {
-    id: ID!
-    text: String!
+"Namespaced resource and action" input ResourceActionInput {
+    namespace: String!
+    action: String!
+    resource: [String!]!
 }
