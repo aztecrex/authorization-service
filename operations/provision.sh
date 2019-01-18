@@ -31,4 +31,6 @@ cd "$(dirname "$0")"
 export AWS_DEFAULT_REGION=us-east-1
 
 # Infrastructure
-provision responder
+# provision responder
+provision web
+

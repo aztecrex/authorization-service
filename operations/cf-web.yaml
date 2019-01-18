@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+
+  Gateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub ${AWS::StackName}-Gateway
+
+  GraphQLEndpoint:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId: !GetAtt Gateway.RootResourceId
+      PathPart: graphql
+      RestApiId: !Ref Gateway
+
+  GraphQLGet:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      RestApiId: !Ref Gateway
+      ResourceId: !Ref GraphQLEndpoint
+      RequestParameters:
+        "method.request.querystring.query": false
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: true
+      AuthorizationType: NONE
+      Integration:
+          IntegrationResponses:
+            - StatusCode: 200
+              ResponseParameters:
+                  method.response.header.Access-Control-Allow-Origin: "'*'"
+          IntegrationHttpMethod: POST
+          Type: AWS
+          Uri: !Join
+              - ""
+              - - "arn:aws:apigateway:"
+                - !Ref AWS::Region
+                - ":lambda:path/"
+                - "2015-03-31/functions/"
+                - !ImportValue authorization-service-responder-ResponderArn
+                - "/invocations"
+          RequestTemplates:
+              "application/json": >
+                {"query": "$input.params('query')"}
+
+  GraphQLGetPermission:
+      Type: AWS::Lambda::Permission
+      Properties:
+          FunctionName: !ImportValue authorization-service-responder-ResponderArn
+          Action: lambda:InvokeFunction
+          Principal: apigateway.amazonaws.com
+          SourceArn: !Join
+            - ""
+            -   - "arn:aws:execute-api:"
+                - Ref: AWS::Region
+                - ":"
+                - Ref: AWS::AccountId
+                - ":"
+                - Ref: Gateway
+                - "/*/*/*"
+
+
+# Outputs:
+#   ResponderArn:
+#     Value: !GetAtt Responder.Arn
+#     Export:
+#       Name: !Sub ${AWS::StackName}-ResponderArn
+
+#   Responder:
+#     Value: !Ref Responder
+#     Export:
+#       Name: !Sub ${AWS::StackName}-Responder
