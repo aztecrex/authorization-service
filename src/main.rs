@@ -1,12 +1,9 @@
 extern crate authorization_service;
 
 
-use authorization_service::wot;
+use authorization_service::wot2;
 
 fn main() {
-    // let q = Query {};
-    // println!("{:?}",q);
-    wot();
-    println!("Hello, world!");
+    wot2();
 }
 

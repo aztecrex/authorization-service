@@ -15,61 +15,78 @@ impl QueryFields for Query {
         _trail: &QueryTrail<'_, QueryResult, Walked>,
         _subject: Vec<String>,
         _resource_actions: Vec<ResourceActionInput>,
-    ) -> FieldResult<&QueryResult> {
-        unimplemented!()
+    ) -> FieldResult<QueryResult> {
+        Ok(QueryResult {
+            all: false,
+            any: true,
+            allow: vec![ResourceAction{namespace: "hi".to_string(), action: "there".to_string(), resource: vec!["thing".to_string()]}],
+            deny: vec![],
+        })
     }
 }
 
-pub struct QueryResult;
+
+pub struct QueryResult {
+    all: bool,
+    any: bool,
+    allow: Vec<ResourceAction>,
+    deny: Vec<ResourceAction>,
+}
 impl QueryResultFields for QueryResult {
     fn field_all(
         &self,
         _executor: &Executor<'_,Context>
-    ) -> FieldResult<&bool> {
-        unimplemented!()
+    ) -> FieldResult<bool> {
+        Ok(self.all)
     }
     fn field_any(
         &self,
         _executor: &Executor<'_,Context>
-    ) -> FieldResult<&bool> {
-        unimplemented!()
+    ) -> FieldResult<bool> {
+        Ok(self.any)
     }
     fn field_allow(
         &self,
         _executor: &Executor<'_,Context>,
         _trail: &QueryTrail<'_, ResourceAction, Walked>
-    ) -> FieldResult<&Vec<ResourceAction>> {
-        unimplemented!()
+    ) -> FieldResult<Vec<ResourceAction>> {
+        Ok(self.allow.clone())
     }
     fn field_deny(
         &self,
         _executor: &Executor<'_,Context>,
         _trail: &QueryTrail<'_, ResourceAction, Walked>
-    ) -> FieldResult<&Vec<ResourceAction>> {
-        unimplemented!()
+    ) -> FieldResult<Vec<ResourceAction>> {
+        Ok(self.deny.clone())
     }
 
 }
 
-pub struct ResourceAction;
+#[derive(Clone)]
+pub struct ResourceAction {
+    namespace: String,
+    action: String,
+    resource: Vec<String>,
+    }
+
 impl ResourceActionFields for ResourceAction {
     fn field_namespace(
         &self,
         _executor: &Executor<'_,Context>
-    ) -> FieldResult<&String> {
-        unimplemented!()
+    ) -> FieldResult<String> {
+        Ok(self.namespace.clone())
     }
     fn field_action(
         &self,
         _executor: &Executor<'_,Context>
-    ) -> FieldResult<&String> {
-        unimplemented!()
+    ) -> FieldResult<String> {
+        Ok(self.action.clone())
     }
         fn field_resource(
         &self,
         _executor: &Executor<'_,Context>
-    ) -> FieldResult<&Vec<String>> {
-        unimplemented!()
+    ) -> FieldResult<Vec<String>> {
+        Ok(self.resource.clone())
     }
 }
 
@@ -81,6 +98,40 @@ pub fn wot() {
     let (res, _errors) = juniper::execute(
         "{__schema {types {name description fields {name description}}}}",
         // "{ human (id: \"3\") {id name} }",
+        None,
+        &Schema2::new(Query, EmptyMutation::new()),
+        &Variables::new(),
+        &ctx,
+    ).unwrap();
+    let s = serde_json::to_string(&res).unwrap();
+    println!("schema: {}",s);
+
+}
+pub fn wot2() {
+    let ctx = Context;
+    // get the schema
+    let (res, _errors) = juniper::execute(
+        "{
+            canPerform (
+                subject: [\"sally\",\"tom\"]
+                resourceActions: [{
+                    namespace: \"tracking\"
+                    action: \"supertrack\"
+                    resource: [\"1930942\"]
+                    }]
+            ) {
+                all
+                any
+                allow {
+                    namespace
+                    action
+                    resource }
+                deny {
+                    namespace
+                    action
+                    resource }
+                }
+        }",
         None,
         &Schema2::new(Query, EmptyMutation::new()),
         &Variables::new(),
