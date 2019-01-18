@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Resources:
+
+  Responder:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+          ZipFile: >
+              exports.handler = (event, context, callback) => {
+                  console.log("email sent placeholder invoked with ", event);
+                  callback(null, {});
+              };
+      Handler: index.handler
+      Role: !GetAtt ResponderRole.Arn
+      Runtime: nodejs8.10
+
+  ResponderRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - !Ref WriteAnyLogsPolicy
+
+  WriteAnyLogsPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+          PolicyDocument:
+              Version: 2012-10-17
+              Statement:
+                - Effect: Allow
+                  Action:
+                    - logs:CreateLogGroup
+                    - logs:CreateLogStream
+                    - logs:PutLogEvents
+                  Resource:
+                    - "*"
+
+Outputs:
+  ResponderArn:
+    Value: !GetAtt Responder.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-ResponderArn
+
+  Responder:
+    Value: !Ref Responder
+    Export:
+      Name: !Sub ${AWS::StackName}-Responder
