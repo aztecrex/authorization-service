@@ -44,7 +44,56 @@ Resources:
                 - "/invocations"
           RequestTemplates:
               "application/json": >
-                {"query": "$input.params('query')"}
+                  {
+                      #if ($input.params('query') != '')
+                          "uquery": "$input.params('query')",
+                      #end
+                      "null": null
+                  }
+
+  GraphQLPost:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      RestApiId: !Ref Gateway
+      ResourceId: !Ref GraphQLEndpoint
+      RequestParameters:
+        "method.request.querystring.query": false
+      MethodResponses:
+        - StatusCode: 200
+          ResponseParameters:
+              method.response.header.Access-Control-Allow-Origin: true
+      AuthorizationType: NONE
+      Integration:
+          IntegrationResponses:
+            - StatusCode: 200
+              ResponseParameters:
+                  method.response.header.Access-Control-Allow-Origin: "'*'"
+          IntegrationHttpMethod: POST
+          Type: AWS
+          Uri: !Join
+              - ""
+              - - "arn:aws:apigateway:"
+                - !Ref AWS::Region
+                - ":lambda:path/"
+                - "2015-03-31/functions/"
+                - !ImportValue authorization-service-responder-ResponderArn
+                - "/invocations"
+          RequestTemplates:
+              "application/json": >
+                  {
+                      #if ($input.params('query') != '')
+                          "uquery": "$input.params('query')",
+                      #end
+                      #if ($input.json('$.query') != '""')
+                          "bquery": $input.json('$.query'),
+                      #end
+                      #if ($input.json('$.variables') != '""')
+                          "variables": $input.json('$.variables'),
+                      #end
+                      "null": null
+                  }
+
 
   GraphQLGetPermission:
       Type: AWS::Lambda::Permission
