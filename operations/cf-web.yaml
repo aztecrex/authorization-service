@@ -46,7 +46,7 @@ Resources:
               "application/json": >
                   {
                       #if ($input.params('query') != '')
-                          "uquery": "$input.params('query')",
+                          "query": "$input.params('query')",
                       #end
                       "null": null
                   }
@@ -82,11 +82,10 @@ Resources:
           RequestTemplates:
               "application/json": >
                   {
-                      #if ($input.params('query') != '')
-                          "uquery": "$input.params('query')",
-                      #end
                       #if ($input.json('$.query') != '""')
-                          "bquery": $input.json('$.query'),
+                          "query": $input.json('$.query'),
+                      #elseif ($input.params('query') != '')
+                          "query": "$input.params('query')",
                       #end
                       #if ($input.json('$.variables') != '""')
                           "variables": $input.json('$.variables'),
