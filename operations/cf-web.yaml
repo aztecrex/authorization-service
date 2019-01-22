@@ -111,13 +111,3 @@ Resources:
                 - "/*/*/*"
 
 
-# Outputs:
-#   ResponderArn:
-#     Value: !GetAtt Responder.Arn
-#     Export:
-#       Name: !Sub ${AWS::StackName}-ResponderArn
-
-#   Responder:
-#     Value: !Ref Responder
-#     Export:
-#       Name: !Sub ${AWS::StackName}-Responder
