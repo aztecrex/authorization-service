@@ -13,8 +13,8 @@ zip lambda bootstrap
 ## Update Lambda
 
 ```sh
-aws lambda update-function-configuration --function-name authorization-service-responder-Responder-CV7LGR6IIVFM  --runtime provided
-aws lambda update-function-code --function-name authorization-service-responder-Responder-CV7LGR6IIVFM --zip-file fileb://lambda.zip
+aws lambda update-function-configuration --function-name authorization-service-responder-Responder-CFGENERATEDID  --runtime provided
+aws lambda update-function-code --function-name authorization-service-responder-Responder-CFGENERATEDID --zip-file fileb://lambda.zip
 ```
 
 ## Latency Analysis
