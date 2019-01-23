@@ -38,6 +38,18 @@ You'll get something like:
          time_total:  0.445382 (<-- where did 150ms go?)
 ```
 
+It's even worse in us-west-1:
+```
+    time_namelookup:  0.005120
+       time_connect:  0.095137
+    time_appconnect:  0.298649
+   time_pretransfer:  0.298819
+      time_redirect:  0.000000
+ time_starttransfer:  0.298884
+                    ----------
+         time_total:  0.880548
+```
+
 I don't yet know what's happening between `time_starttransfer` and `time_total`. It's a tiny
 return (2676 bytes body + ~450 bytes headers = ~3KB). Hypothesis is "first byte" is returned
 in advance of the lambda invocation and that the invocation time plus the APIGW-to-Lambda
