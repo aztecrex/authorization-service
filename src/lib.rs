@@ -92,12 +92,10 @@ impl ResourceActionFields for ResourceAction {
 
 pub type Schema2 = juniper::RootNode<'static, Query, juniper::EmptyMutation<Context>>;
 
-pub fn wot() {
+pub fn execute(query: &str) {
     let ctx = Context;
     // get the schema
-    let (res, _errors) = juniper::execute(
-        "{__schema {types {name description fields {name description}}}}",
-        // "{ human (id: \"3\") {id name} }",
+    let (res, _errors) = juniper::execute(query,
         None,
         &Schema2::new(Query, EmptyMutation::new()),
         &Variables::new(),
@@ -107,6 +105,7 @@ pub fn wot() {
     println!("schema: {}",s);
 
 }
+
 pub fn wot2() {
     let ctx = Context;
     // get the schema

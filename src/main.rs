@@ -5,7 +5,7 @@ use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, error};
 use serde_derive::{Deserialize, Serialize};
 use simple_logger;
-
+use authorization_service::execute;
 
 
 #[derive(Deserialize)]
@@ -27,11 +27,17 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn my_handler(e: CustomEvent, c: Context) -> Result<CustomOutput, HandlerError> {
-    if e.query.is_none() {
+
+    match e.query {
+        None => {
         error!("Query is requred {}", c.aws_request_id);
-        return Err(c.new_error("Missing Query"))
+            return Err(c.new_error("Missing Query"))
+        }
+        Some(query) => {
+            execute(&query[..]);
+            Ok(CustomOutput {
+                message: format!("Ok {:?}", query),
+            })
+        }
     }
-    Ok(CustomOutput {
-        message: format!("Ok {:?}", e.query),
-    })
 }
