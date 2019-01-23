@@ -17,3 +17,28 @@ aws lambda update-function-configuration --function-name authorization-service-r
 aws lambda update-function-code --function-name authorization-service-responder-Responder-CV7LGR6IIVFM --zip-file fileb://lambda.zip
 ```
 
+## Latency Analysis
+
+Wondering why a lambda function that has 20ms invocation latency results in 450ms curl invocation?
+Have curl tell you!
+
+Output format is in `curl-format.txt`:
+
+Run with something like `curl -s -w @curl-format.txt -H 'content-type: application/json' -d '{"query":"{__schema {types {name description fields {name description}}}}"}' https://yourstagehost.com/yourstagename/graphql -o /dev/null`
+
+You'll get something like:
+```
+    time_namelookup:  0.005116
+       time_connect:  0.095079
+    time_appconnect:  0.298310 (<-- SSH handshake complete)
+   time_pretransfer:  0.298432
+      time_redirect:  0.000000
+ time_starttransfer:  0.298473 (<-- first byte transferred back from server)
+                    ----------
+         time_total:  0.445382 (<-- where did 150ms go?)
+```
+
+I don't yet know what's happening between `time_starttransfer` and `time_total`. It's a tiny
+return (2676 bytes body + ~450 bytes headers = ~3KB). Hypothesis is "first byte" is returned
+in advance of the lambda invocation and that the invocation time plus the APIGW-to-Lambda
+machinery takes up the rest.

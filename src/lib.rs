@@ -101,10 +101,25 @@ pub fn execute(query: &str) {
         &Variables::new(),
         &ctx,
     ).unwrap();
-    let s = serde_json::to_string(&res).unwrap();
-    println!("schema: {}",s);
-
+    // let s = serde_json::to_string(&res).unwrap();
+    println!("schema: {:?}",res);
 }
+
+
+pub type XRet = Value<DefaultScalarValue>;
+pub fn execute_r(query: &str) -> XRet {
+    let ctx = Context;
+    // get the schema
+    let (res, _errors) = juniper::execute(query,
+        None,
+        &Schema2::new(Query, EmptyMutation::new()),
+        &Variables::new(),
+        &ctx,
+    ).unwrap();
+    println!("schema: {:?}",res);
+    res
+}
+
 
 pub fn wot2() {
     let ctx = Context;

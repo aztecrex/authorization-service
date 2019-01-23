@@ -3,9 +3,10 @@ extern crate authorization_service;
 use std::error::Error;
 use lambda_runtime::{error::HandlerError, lambda, Context};
 use log::{self, error};
-use serde_derive::{Deserialize, Serialize};
+use serde_derive::{Deserialize};
 use simple_logger;
-use authorization_service::execute;
+use authorization_service::execute_r;
+use authorization_service::XRet;
 
 
 #[derive(Deserialize)]
@@ -14,19 +15,18 @@ struct CustomEvent {
     query: Option<String>,
 }
 
-#[derive(Serialize)]
-struct CustomOutput {
-    message: String,
-}
+// #[derive(Serialize)]
+// struct CustomOutput {
+//     message: String,
+// }
 
 fn main() -> Result<(), Box<dyn Error>> {
     simple_logger::init_with_level(log::Level::Debug).unwrap();
-    lambda!(my_handler);
-
+    lambda!(my_handler_2);
     Ok(())
 }
 
-fn my_handler(e: CustomEvent, c: Context) -> Result<CustomOutput, HandlerError> {
+fn my_handler_2(e: CustomEvent, c: Context) -> Result<XRet, HandlerError> {
 
     match e.query {
         None => {
@@ -34,10 +34,8 @@ fn my_handler(e: CustomEvent, c: Context) -> Result<CustomOutput, HandlerError> 
             return Err(c.new_error("Missing Query"))
         }
         Some(query) => {
-            execute(&query[..]);
-            Ok(CustomOutput {
-                message: format!("Ok {:?}", query),
-            })
+            let r = execute_r(&query[..]);
+            Ok(r)
         }
     }
 }
