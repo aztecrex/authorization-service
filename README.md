@@ -19,7 +19,7 @@ aws lambda update-function-code --function-name authorization-service-responder-
 
 ## Latency Analysis
 
-Wondering why a lambda function that has 20ms invocation latency results in 450ms curl invocation?
+Wondering why a lambda function that has 30ms invocation latency results in 450ms curl invocation?
 Have curl tell you!
 
 Output format is in `curl-format.txt`:
