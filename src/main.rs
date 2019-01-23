@@ -10,8 +10,8 @@ use simple_logger;
 
 #[derive(Deserialize)]
 struct CustomEvent {
-    #[serde(rename = "firstName")]
-    first_name: String,
+    #[serde(rename = "query")]
+    query: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -27,12 +27,11 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 
 fn my_handler(e: CustomEvent, c: Context) -> Result<CustomOutput, HandlerError> {
-    if e.first_name == "" {
-        error!("Empty first name in request {}", c.aws_request_id);
-        return Err(c.new_error("Empty first name"));
+    if e.query.is_none() {
+        error!("Query is requred {}", c.aws_request_id);
+        return Err(c.new_error("Missing Query"))
     }
-
     Ok(CustomOutput {
-        message: format!("Hello, {}!", e.first_name),
+        message: format!("Ok {:?}", e.query),
     })
 }
