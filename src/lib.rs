@@ -19,8 +19,8 @@ impl QueryFields for Query {
         Ok(QueryResult {
             all: false,
             any: true,
-            allow: vec![ResourceAction{namespace: "hi".to_string(), action: "there".to_string(), resource: vec!["thing".to_string()]}],
-            deny: vec![],
+            allow: vec![ResourceAction{namespace: "things".to_string(), action: "modifyThing".to_string(), resource: vec!["thing1".to_string()]}],
+            deny: vec![ResourceAction{namespace: "things".to_string(), action: "deleteThing".to_string(), resource: vec!["thing1".to_string()]}],
         })
     }
 }
