@@ -28,7 +28,7 @@ provision() {
 
 cd "$(dirname "$0")"
 
-export AWS_DEFAULT_REGION=us-west-1
+export AWS_DEFAULT_REGION=us-east-1
 
 # Infrastructure
 provision responder

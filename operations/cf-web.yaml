@@ -62,12 +62,16 @@ Resources:
       MethodResponses:
         - StatusCode: 200
           ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: true
+              method.response.header.Access-Control-Allow-Methods: true
               method.response.header.Access-Control-Allow-Origin: true
       AuthorizationType: NONE
       Integration:
           IntegrationResponses:
             - StatusCode: 200
               ResponseParameters:
+                  method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+                  method.response.header.Access-Control-Allow-Methods: "'POST,GET,OPTIONS'"
                   method.response.header.Access-Control-Allow-Origin: "'*'"
           IntegrationHttpMethod: POST
           Type: AWS
@@ -93,8 +97,35 @@ Resources:
                       "null": null
                   }
 
+  GraphQLOptions:
+    Type: AWS::ApiGateway::Method
+    Properties:
+        HttpMethod: OPTIONS
+        RestApiId: !Ref Gateway
+        ResourceId: !Ref GraphQLEndpoint
+        MethodResponses:
+          - StatusCode: 200
+            ResponseParameters:
+                method.response.header.Access-Control-Allow-Headers: true
+                method.response.header.Access-Control-Allow-Methods: true
+                method.response.header.Access-Control-Allow-Origin: true
+            ResponseModels:
+                application/json: 'Empty'
+        AuthorizationType: NONE
+        Integration:
+            IntegrationResponses:
+              - StatusCode: 200
+                ResponseParameters:
+                    method.response.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+                    method.response.header.Access-Control-Allow-Methods: "'POST,GET,OPTIONS'"
+                    method.response.header.Access-Control-Allow-Origin: "'*'"
+            RequestTemplates:
+                application/json: '{statusCode: 200}'
+            Type: MOCK
 
-  GraphQLGetPermission:
+
+
+  GraphQLLambdaPermission:
       Type: AWS::Lambda::Permission
       Properties:
           FunctionName: !ImportValue authorization-service-responder-ResponderArn
