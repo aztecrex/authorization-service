@@ -105,14 +105,13 @@ pub fn execute(query: &str) {
     println!("schema: {:?}",res);
 }
 
-
 pub type XRet = Value<DefaultScalarValue>;
 pub fn execute_r(query: &str) -> XRet {
     let ctx = Context;
-    // get the schema
+    let qry = Query;
     let (res, _errors) = juniper::execute(query,
         None,
-        &Schema2::new(Query, EmptyMutation::new()),
+        &Schema2::new(qry, EmptyMutation::new()),
         &Variables::new(),
         &ctx,
     ).unwrap();
@@ -120,6 +119,45 @@ pub fn execute_r(query: &str) -> XRet {
     res
 }
 
+
+pub struct WrappedRet<'a, S = DefaultScalarValue>(
+    Result<(Value<S>, Vec<ExecutionError<S>>), GraphQLError<'a>>,
+);
+impl<'a, S> WrappedRet<'a, S>
+    where S: ScalarValue
+{
+    pub fn error(error: FieldError<S>) -> Self {
+        WrappedRet(Ok((Value::null(), vec![ExecutionError::at_origin(error)])))
+    }
+    pub fn is_ok(&self) -> bool {
+        self.0.is_ok()
+    }
+}
+
+// pub struct GQLReq<'a, S = DefaultScalarValue> {
+//     root_node : RootNode<'a, Query, EmptyMutation<S>>,
+//     query : &'a str,
+// }
+
+// pub fn execute_ww<'a>(req: &GQLReq<'a>) -> WrappedRet<'a> {
+//     let ctx = Context;
+//     let r = juniper::execute(req.query, None, &req.root_node, &Variables::new(), &ctx);
+//     WrappedRet(r)
+// }
+
+pub fn execute_w<'a>(query: &'a str) -> WrappedRet<'a> {
+    let ctx = Context;
+    let qry = Query;
+    let schema = Box::new(RootNode::new(qry, EmptyMutation::new()));
+    let r = juniper::execute(query,
+        None,
+        &schema,
+        &Variables::new(),
+        &ctx,
+    );
+    // unimplemented!();
+    WrappedRet(r)
+}
 
 pub fn wot2() {
     let ctx = Context;
